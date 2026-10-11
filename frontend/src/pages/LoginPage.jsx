@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import GlassCard from '../components/ui/GlassCard';
+import Mascot from '../components/ui/Mascot';
+import PrimaryButton from '../components/ui/PrimaryButton';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -34,7 +37,14 @@ export default function LoginPage() {
     try {
       const res = await login(formData.email, formData.password);
       if (res.success) {
-        navigate('/dashboard');
+        const userRole = res.user?.role;
+        if (userRole === 'librarian') {
+          navigate('/librarian/dashboard');
+        } else if (userRole === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         setError(res.message || 'Login failed. Invalid credentials.');
       }
@@ -47,71 +57,70 @@ export default function LoginPage() {
 
   return (
     <div className="max-w-md mx-auto py-16 px-4">
-      <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-xl">
-        <div className="text-center mb-8">
-          <div className="h-12 w-12 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center mx-auto mb-4">
-            <LogIn className="h-6 w-6" />
-          </div>
-          <h1 className="text-2xl font-extrabold text-white">Welcome Back</h1>
-          <p className="text-slate-400 text-sm mt-1">Login to access your active rentals & book reservations</p>
+      <GlassCard className="p-8 border-white/80 shadow-xl space-y-6">
+        <div className="text-center space-y-2">
+          <Mascot type="main" size="md" float speech="Welcome Back!" />
+          <h1 className="text-2xl font-black text-slate-900">Sign In to TravelLib</h1>
+          <p className="text-slate-600 text-xs font-medium">Access your active rentals, bookings, and digital receipts</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 flex-shrink-0 text-rose-400" />
-            <span>{error}</span>
-          </div>
+          <GlassCard className="p-4 bg-rose-50/90 border-rose-200 text-rose-800 text-xs flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 text-rose-600" />
+            <span className="font-bold">{error}</span>
+          </GlassCard>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Email Address</label>
+            <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Email Address</label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+              <Mail className="absolute left-4 top-3.5 h-4 w-4 text-purple-500" />
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="john@example.com"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-indigo-500"
+                placeholder="passenger@example.com"
+                className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/90 border border-purple-200 text-slate-900 text-sm font-medium focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Password</label>
+            <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Password</label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+              <Lock className="absolute left-4 top-3.5 h-4 w-4 text-purple-500" />
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/90 border border-purple-200 text-slate-900 text-sm font-medium focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
                 required
               />
             </div>
           </div>
 
-          <button
+          <PrimaryButton
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 cursor-pointer mt-2"
+            className="w-full mt-2"
           >
-            {loading ? 'Authenticating...' : 'Sign In'} <ArrowRight className="h-4 w-4" />
-          </button>
+            {loading ? 'Authenticating...' : 'Sign In'}
+            <ArrowRight className="h-4 w-4" />
+          </PrimaryButton>
         </form>
 
-        <div className="mt-6 text-center text-xs text-slate-400">
+        <div className="pt-2 text-center text-xs text-slate-600 font-medium">
           Don't have an account yet?{' '}
-          <Link to="/register" className="text-indigo-400 font-semibold hover:underline">
-            Register Account
+          <Link to="/register" className="text-purple-700 font-extrabold hover:underline">
+            Create Free Account
           </Link>
         </div>
-      </div>
+      </GlassCard>
     </div>
   );
 }

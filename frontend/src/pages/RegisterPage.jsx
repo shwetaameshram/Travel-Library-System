@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Phone, AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import GlassCard from '../components/ui/GlassCard';
+import Mascot from '../components/ui/Mascot';
+import PrimaryButton from '../components/ui/PrimaryButton';
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -72,126 +75,125 @@ export default function RegisterPage() {
 
   return (
     <div className="max-w-md mx-auto py-12 px-4">
-      <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-xl">
-        <div className="text-center mb-8">
-          <div className="h-12 w-12 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center mx-auto mb-4">
-            <User className="h-6 w-6" />
-          </div>
-          <h1 className="text-2xl font-extrabold text-white">Create Passenger Account</h1>
-          <p className="text-slate-400 text-sm mt-1">Register to start renting books during your travels</p>
+      <GlassCard className="p-8 border-white/80 shadow-xl space-y-6">
+        <div className="text-center space-y-2">
+          <Mascot type="main" size="md" float speech="Join the Journey!" />
+          <h1 className="text-2xl font-black text-slate-900">Create Passenger Account</h1>
+          <p className="text-slate-600 text-xs font-medium">Register to rent books across railway stations & airport hubs</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 flex-shrink-0 text-rose-400" />
-            <span>{error}</span>
-          </div>
+          <GlassCard className="p-4 bg-rose-50/90 border-rose-200 text-rose-800 text-xs flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 text-rose-600" />
+            <span className="font-bold">{error}</span>
+          </GlassCard>
         )}
 
         {success && (
-          <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm flex items-center gap-3">
-            <CheckCircle className="h-5 w-5 flex-shrink-0 text-emerald-400" />
-            <span>{success}</span>
-          </div>
+          <GlassCard className="p-4 bg-emerald-50/90 border-emerald-200 text-emerald-800 text-xs flex items-center gap-3">
+            <CheckCircle className="h-5 w-5 flex-shrink-0 text-emerald-600" />
+            <span className="font-bold">{success}</span>
+          </GlassCard>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Full Name</label>
+            <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Full Name</label>
             <div className="relative">
-              <User className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+              <User className="absolute left-4 top-3.5 h-4 w-4 text-purple-500" />
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="John Doe"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/90 border border-purple-200 text-slate-900 text-sm font-medium focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Email Address</label>
+            <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Email Address</label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+              <Mail className="absolute left-4 top-3.5 h-4 w-4 text-purple-500" />
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="john@example.com"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/90 border border-purple-200 text-slate-900 text-sm font-medium focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Mobile Number</label>
+            <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Mobile Number</label>
             <div className="relative">
-              <Phone className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+              <Phone className="absolute left-4 top-3.5 h-4 w-4 text-purple-500" />
               <input
                 type="text"
                 name="mobile"
                 value={formData.mobile}
                 onChange={handleChange}
-                placeholder="+15551234567"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-indigo-500"
+                placeholder="+91 9876543210"
+                className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/90 border border-purple-200 text-slate-900 text-sm font-medium focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Password</label>
+            <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Password</label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+              <Lock className="absolute left-4 top-3.5 h-4 w-4 text-purple-500" />
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/90 border border-purple-200 text-slate-900 text-sm font-medium focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Confirm Password</label>
+            <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">Confirm Password</label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+              <Lock className="absolute left-4 top-3.5 h-4 w-4 text-purple-500" />
               <input
                 type="password"
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/90 border border-purple-200 text-slate-900 text-sm font-medium focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
                 required
               />
             </div>
           </div>
 
-          <button
+          <PrimaryButton
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 cursor-pointer mt-2"
+            className="w-full mt-2"
           >
-            {loading ? 'Creating Account...' : 'Register Account'} <ArrowRight className="h-4 w-4" />
-          </button>
+            {loading ? 'Creating Account...' : 'Register Account'}
+            <ArrowRight className="h-4 w-4" />
+          </PrimaryButton>
         </form>
 
-        <div className="mt-6 text-center text-xs text-slate-400">
+        <div className="pt-2 text-center text-xs text-slate-600 font-medium">
           Already have an account?{' '}
-          <Link to="/login" className="text-indigo-400 font-semibold hover:underline">
+          <Link to="/login" className="text-purple-700 font-extrabold hover:underline">
             Sign In Here
           </Link>
         </div>
-      </div>
+      </GlassCard>
     </div>
   );
 }

@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { BookOpen, Search, MapPin, ArrowRight, ShieldAlert, Sparkles, Filter, Layers } from 'lucide-react';
 import { bookAPI } from '../services/api';
+import GlassCard from '../components/ui/GlassCard';
+import Mascot from '../components/ui/Mascot';
+import SectionHeading from '../components/ui/SectionHeading';
+import StatusBadge from '../components/ui/StatusBadge';
+import PrimaryButton from '../components/ui/PrimaryButton';
 
 export default function BooksPage() {
   const [books, setBooks] = useState([]);
@@ -10,7 +15,6 @@ export default function BooksPage() {
   const [searchAuthor, setSearchAuthor] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   const fetchBooks = async () => {
     setLoading(true);
@@ -35,40 +39,40 @@ export default function BooksPage() {
     fetchBooks();
   }, [searchTitle, searchAuthor, selectedCategory]);
 
-  const categories = ['Fiction', 'Non-Fiction', 'Biography', 'Self-Help', 'Classic', 'Dystopian', 'Fantasy'];
+  const categories = ['Fiction', 'Non-Fiction', 'Biography', 'Self-Help', 'Classic', 'Dystopian', 'Fantasy', 'Finance', 'History'];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl sm:text-4xl font-black text-white">Travel Book Catalog</h1>
-        <p className="text-slate-400 text-sm">
-          Browse and reserve popular books available for pickup at station and airport libraries.
-        </p>
-      </div>
+      <SectionHeading
+        badge="Catalog Search"
+        title="Travel Book Catalog"
+        subtitle="Browse and reserve popular books available for pickup at station and airport libraries."
+        align="left"
+      />
 
-      {/* Filter and Search Controls */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+      {/* Filter and Search Glass Bar */}
+      <GlassCard className="border-purple-200 shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
-            <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-500" />
+            <Search className="absolute left-4 top-3.5 h-4 w-4 text-[#6D28D9]" />
             <input
               type="text"
-              placeholder="Search by Title (e.g. Alchemist, Wings)..."
+              placeholder="Search by Title (e.g. Alchemist, Habits)..."
               value={searchTitle}
               onChange={(e) => setSearchTitle(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white border border-purple-200 text-[#24104F] placeholder-slate-400 text-sm focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 transition-all font-bold"
             />
           </div>
 
           <div className="relative">
-            <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-500" />
+            <Search className="absolute left-4 top-3.5 h-4 w-4 text-[#6D28D9]" />
             <input
               type="text"
               placeholder="Search by Author..."
               value={searchAuthor}
               onChange={(e) => setSearchAuthor(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white border border-purple-200 text-[#24104F] placeholder-slate-400 text-sm focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 transition-all font-bold"
             />
           </div>
 
@@ -76,7 +80,7 @@ export default function BooksPage() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full px-4 py-3 rounded-2xl bg-white border border-purple-200 text-[#24104F] text-sm font-bold focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 transition-all"
             >
               <option value="">All Categories</option>
               {categories.map((cat) => (
@@ -87,98 +91,106 @@ export default function BooksPage() {
             </select>
           </div>
         </div>
-      </div>
+      </GlassCard>
 
       {/* Loading & Error States */}
       {loading ? (
-        <div className="flex items-center justify-center py-20 text-slate-400 gap-3">
-          <div className="h-6 w-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          <span>Searching Travel Libraries...</span>
+        <div className="flex flex-col items-center justify-center py-20 text-slate-600 space-y-4">
+          <Mascot type="main" size="md" float speech="Searching Library..." />
+          <div className="flex items-center gap-2 text-sm font-bold text-[#6D28D9]">
+            <div className="h-4 w-4 border-2 border-[#6D28D9] border-t-transparent rounded-full animate-spin" />
+            <span>Fetching Available Books...</span>
+          </div>
         </div>
       ) : error ? (
-        <div className="p-6 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-center space-y-3">
-          <ShieldAlert className="h-10 w-10 text-rose-400 mx-auto" />
-          <p className="text-white font-semibold">{error}</p>
-        </div>
+        <GlassCard className="p-8 bg-rose-50 border-rose-200 text-center space-y-3">
+          <ShieldAlert className="h-10 w-10 text-rose-600 mx-auto" />
+          <p className="text-rose-900 font-extrabold">{error}</p>
+        </GlassCard>
       ) : books.length === 0 ? (
-        /* Empty State */
-        <div className="p-12 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-4">
-          <BookOpen className="h-12 w-12 text-slate-600 mx-auto" />
-          <h3 className="text-xl font-bold text-white">No Books Found</h3>
-          <p className="text-slate-400 text-sm max-w-md mx-auto">
-            We couldn't find any books matching your search criteria. Try clearing filters or searching for another title.
-          </p>
-          <button
-            onClick={() => {
-              setSearchTitle('');
-              setSearchAuthor('');
-              setSelectedCategory('');
-            }}
-            className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold"
-          >
-            Clear Search Filters
-          </button>
-        </div>
+        /* Mascot Friendly Empty State */
+        <GlassCard className="p-14 text-center space-y-6 border-purple-200">
+          <Mascot type="empty" size="lg" speech="No books found!" float />
+          <div className="space-y-2">
+            <h3 className="text-2xl font-black text-[#24104F]">No Books Match Your Search</h3>
+            <p className="text-[#4B5563] text-sm max-w-md mx-auto font-medium">
+              We couldn't find any books matching your criteria. Try clearing search filters or searching for another author or category.
+            </p>
+          </div>
+          <div>
+            <PrimaryButton
+              variant="secondary"
+              onClick={() => {
+                setSearchTitle('');
+                setSearchAuthor('');
+                setSelectedCategory('');
+              }}
+            >
+              Clear Search Filters
+            </PrimaryButton>
+          </div>
+        </GlassCard>
       ) : (
         /* Books Card Grid */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {books.map((b) => (
-            <div
-              key={b.id}
-              className="bg-slate-900 border border-slate-800 hover:border-indigo-500/40 rounded-3xl p-6 shadow-xl flex flex-col justify-between space-y-5 transition-all group"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                    {b.category}
-                  </span>
-                  <span className="text-xs font-mono text-slate-400">ISBN: {b.isbn}</span>
-                </div>
-
-                <h3 className="text-xl font-extrabold text-white group-hover:text-indigo-300 transition-colors leading-snug">
-                  {b.title}
-                </h3>
-                <p className="text-sm font-semibold text-slate-400">By {b.author}</p>
-
-                {/* Availability Summary */}
-                <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between text-xs">
-                  <span className="text-slate-400 flex items-center gap-1">
-                    <Layers className="h-3.5 w-3.5 text-indigo-400" /> Total Available:
-                  </span>
-                  <span className={`font-bold ${b.total_available_quantity > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {b.total_available_quantity > 0 ? `${b.total_available_quantity} Copies` : 'Out of Stock'}
-                  </span>
-                </div>
-
-                {/* Library Branches badges */}
-                {b.available_libraries && b.available_libraries.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {b.available_libraries.slice(0, 3).map((lib, idx) => (
-                      <span key={idx} className="text-[11px] px-2 py-0.5 rounded-md bg-slate-950 text-slate-300 border border-slate-800 flex items-center gap-1">
-                        <MapPin className="h-3 w-3 text-indigo-400 shrink-0" /> {lib.city} ({lib.available_quantity})
-                      </span>
-                    ))}
+          {books.map((b) => {
+            const available = b.total_available_quantity > 0;
+            return (
+              <GlassCard hover key={b.id} className="flex flex-col justify-between border-purple-200 space-y-5">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="px-3 py-1 rounded-full text-xs font-black bg-purple-100 text-[#6D28D9] border border-purple-200">
+                      {b.category}
+                    </span>
+                    <StatusBadge status={available ? 'available' : 'out_of_stock'} />
                   </div>
-                )}
-              </div>
 
-              {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800">
-                <Link
-                  to={`/books/${b.id}`}
-                  className="py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-bold text-center transition-colors"
-                >
-                  View Details
-                </Link>
-                <Link
-                  to={`/rent?bookId=${b.id}`}
-                  className="py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold text-center transition-all shadow-md shadow-indigo-600/20 flex items-center justify-center gap-1"
-                >
-                  Rent Now <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-            </div>
-          ))}
+                  <h3 className="text-xl font-black text-[#24104F] group-hover:text-[#6D28D9] transition-colors leading-snug">
+                    {b.title}
+                  </h3>
+                  <p className="text-xs font-bold text-[#4B5563]">By {b.author}</p>
+
+                  {/* Stock Availability */}
+                  <div className="pt-2 border-t border-purple-100 flex items-center justify-between text-xs">
+                    <span className="text-[#4B5563] font-bold flex items-center gap-1.5">
+                      <Layers className="h-4 w-4 text-[#6D28D9]" /> Total Stock:
+                    </span>
+                    <span className={`font-black ${available ? 'text-emerald-700' : 'text-rose-600'}`}>
+                      {available ? `${b.total_available_quantity} Copies Available` : 'Out of Stock'}
+                    </span>
+                  </div>
+
+                  {/* Library Branches badges */}
+                  {b.available_libraries && b.available_libraries.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {b.available_libraries.slice(0, 3).map((lib, idx) => (
+                        <span key={idx} className="text-[11px] px-2.5 py-1 rounded-lg bg-white text-[#24104F] border border-purple-200 flex items-center gap-1 font-bold shadow-2xs">
+                          <MapPin className="h-3 w-3 text-[#6D28D9] shrink-0" /> {lib.city} ({lib.available_quantity})
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-3 pt-4 border-t border-purple-100">
+                  <Link
+                    to={`/books/${b.id}`}
+                    className="py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-[#24104F] text-xs font-extrabold text-center border border-purple-200 transition-all shadow-2xs"
+                  >
+                    View Details
+                  </Link>
+                  <Link
+                    to={`/rent?bookId=${b.id}`}
+                    className="py-2.5 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white text-xs font-extrabold text-center transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-1"
+                  >
+                    <span>Rent Now</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </GlassCard>
+            );
+          })}
         </div>
       )}
     </div>

@@ -77,6 +77,27 @@ export const connectionAPI = {
   getAllConnections: () => request('/connections'),
 };
 
+// Payment Services (Razorpay Integration)
+export const paymentAPI = {
+  createPaymentOrder: (orderData) =>
+    request('/payments/create-order', {
+      method: 'POST',
+      body: JSON.stringify(orderData),
+    }),
+
+  verifyPayment: (verificationData) =>
+    request('/payments/verify', {
+      method: 'POST',
+      body: JSON.stringify(verificationData),
+    }),
+
+  processPayment: (paymentData) =>
+    request('/payments/process', {
+      method: 'POST',
+      body: JSON.stringify(paymentData),
+    }),
+};
+
 // Rental Services
 export const rentalAPI = {
   createRental: (rentalData) =>
@@ -99,9 +120,85 @@ export const returnAPI = {
     }),
 };
 
+// Librarian Services
+export const librarianAPI = {
+  getDashboardStats: () => request('/librarian/dashboard'),
+
+  // Stock Management
+  getStock: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(query ? `/librarian/stock?${query}` : '/librarian/stock');
+  },
+  addOrUpdateStock: (data) => request('/librarian/stock', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Book Catalog Management
+  getBooks: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(query ? `/librarian/books?${query}` : '/librarian/books');
+  },
+  createBook: (data) => request('/librarian/books', { method: 'POST', body: JSON.stringify(data) }),
+  updateBook: (id, data) => request(`/librarian/books/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateBookStatus: (id, status) => request(`/librarian/books/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+
+  // Rentals Management
+  getRentals: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(query ? `/librarian/rentals?${query}` : '/librarian/rentals');
+  },
+  createRental: (data) => request('/librarian/rentals', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Returns Management
+  getReturns: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(query ? `/librarian/returns?${query}` : '/librarian/returns');
+  },
+  processReturn: (id) => request(`/librarian/returns/${id}`, { method: 'POST' }),
+
+  // Passengers
+  getPassengers: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(query ? `/librarian/passengers?${query}` : '/librarian/passengers');
+  },
+  getPassengerDetails: (id) => request(`/librarian/passengers/${id}`),
+
+  // Connected Libraries
+  getConnectedLibraries: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(query ? `/librarian/libraries?${query}` : '/librarian/libraries');
+  },
+
+  // Branch Reports
+  getReports: () => request('/librarian/reports'),
+
+  // Branch Profile
+  getProfile: () => request('/librarian/profile'),
+};
+
 // Admin Services
 export const adminAPI = {
   getDashboardStats: () => request('/admin/dashboard'),
+
+  // Librarians Management
+  getLibrarians: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(query ? `/admin/librarians?${query}` : '/admin/librarians');
+  },
+  getLibrarianById: (id) => request(`/admin/librarians/${id}`),
+  createLibrarian: (data) => request('/admin/librarians', { method: 'POST', body: JSON.stringify(data) }),
+  updateLibrarian: (id, data) => request(`/admin/librarians/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateLibrarianStatus: (id, status) => request(`/admin/librarians/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  updateLibrarianLibrary: (id, library_id) => request(`/admin/librarians/${id}/library`, { method: 'PATCH', body: JSON.stringify({ library_id }) }),
+
+  // Users / Passengers Management
+  getUsers: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request(query ? `/admin/users?${query}` : '/admin/users');
+  },
+  getUserById: (id) => request(`/admin/users/${id}`),
+  createUser: (data) => request('/admin/users', { method: 'POST', body: JSON.stringify(data) }),
+  updateUser: (id, data) => request(`/admin/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateUserStatus: (id, status) => request(`/admin/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  getUserRentals: (id) => request(`/admin/users/${id}/rentals`),
 
   // Books
   getBooks: (params = {}) => {

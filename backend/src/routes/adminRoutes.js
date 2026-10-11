@@ -9,6 +9,22 @@ router.use(requireAdmin);
 // Dashboard
 router.get('/dashboard', adminController.getDashboardStats);
 
+// Librarian Management
+router.get('/librarians', adminController.getAllLibrarians);
+router.get('/librarians/:id', adminController.getLibrarianById);
+router.post('/librarians', adminController.createLibrarian);
+router.put('/librarians/:id', adminController.updateLibrarian);
+router.patch('/librarians/:id/status', adminController.updateLibrarianStatus);
+router.patch('/librarians/:id/library', adminController.updateLibrarianLibrary);
+
+// User / Passenger Management
+router.get('/users', adminController.getAllUsers);
+router.get('/users/:id', adminController.getUserById);
+router.post('/users', adminController.createUser);
+router.put('/users/:id', adminController.updateUser);
+router.patch('/users/:id/status', adminController.updateUserStatus);
+router.get('/users/:id/rentals', adminController.getUserRentalHistory);
+
 // Books Management
 router.get('/books', adminController.getAllBooks);
 router.post('/books', adminController.createBook);

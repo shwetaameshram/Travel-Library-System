@@ -1,8 +1,11 @@
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
 
-const { testConnection } = require('./config/db');
+const { testConnection, runMigrations } = require('./config/db');
 
 // Import Route Modules
 const authRoutes = require('./routes/authRoutes');
@@ -11,14 +14,20 @@ const libraryRoutes = require('./routes/libraryRoutes');
 const connectionRoutes = require('./routes/connectionRoutes');
 const rentalRoutes = require('./routes/rentalRoutes');
 const returnRoutes = require('./routes/returnRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const librarianRoutes = require('./routes/librarianRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 
 // Request logger
 app.use((req, res, next) => {
@@ -40,11 +49,13 @@ app.get('/', (req, res) => {
       'GET /api/libraries',
       'GET /api/libraries/:id',
       'GET /api/connections',
+      'POST /api/payments/process',
       'POST /api/rentals',
       'GET /api/rentals/:id',
       'GET /api/rentals/user/:userId',
       'POST /api/returns',
-      'GET /api/admin/dashboard'
+      'GET /api/admin/dashboard',
+      'GET /api/librarian/dashboard'
     ]
   });
 });
@@ -68,7 +79,9 @@ app.use('/api/libraries', libraryRoutes);
 app.use('/api/connections', connectionRoutes);
 app.use('/api/rentals', rentalRoutes);
 app.use('/api/returns', returnRoutes);
+app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/librarian', librarianRoutes);
 
 // 404 Handler for Undefined Routes
 app.use((req, res, next) => {

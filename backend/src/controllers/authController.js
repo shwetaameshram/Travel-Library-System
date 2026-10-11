@@ -73,6 +73,14 @@ exports.login = async (req, res, next) => {
 
     const user = users[0];
 
+    // Check account status
+    if (user.status === 'inactive') {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is deactivated. Please contact administrator.'
+      });
+    }
+
     // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -84,6 +92,15 @@ exports.login = async (req, res, next) => {
 
     // Return user info (excluding password)
     const { password: _, ...userWithoutPassword } = user;
+
+    if (user.library_id) {
+      const [libs] = await pool.query('SELECT id, name, city, location, type FROM libraries WHERE id = ?', [user.library_id]);
+      if (libs.length > 0) {
+        userWithoutPassword.library = libs[0];
+        userWithoutPassword.library_name = libs[0].name;
+        userWithoutPassword.library_city = libs[0].city;
+      }
+    }
 
     return res.status(200).json({
       success: true,

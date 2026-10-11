@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS `users`;
 
 -- ------------------------------------------------------------
 -- 1. Table: users
--- Stores passenger accounts and administrators.
+-- Stores passenger accounts, librarians, and administrators.
 -- ------------------------------------------------------------
 CREATE TABLE `users` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -24,8 +24,11 @@ CREATE TABLE `users` (
     `email` VARCHAR(100) NOT NULL UNIQUE,
     `password` VARCHAR(255) NOT NULL,
     `mobile` VARCHAR(20) NOT NULL,
-    `role` ENUM('user', 'admin') NOT NULL DEFAULT 'user',
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    `role` ENUM('user', 'admin', 'librarian') NOT NULL DEFAULT 'user',
+    `library_id` INT NULL,
+    `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT `fk_users_library` FOREIGN KEY (`library_id`) REFERENCES `libraries` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ------------------------------------------------------------
@@ -51,6 +54,8 @@ CREATE TABLE `books` (
     `author` VARCHAR(150) NOT NULL,
     `category` VARCHAR(100) NOT NULL,
     `isbn` VARCHAR(20) NOT NULL UNIQUE,
+    `book_value` DECIMAL(10, 2) NOT NULL DEFAULT 500.00,
+    `rental_fee` DECIMAL(10, 2) NOT NULL DEFAULT 50.00,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -121,15 +126,40 @@ CREATE TABLE `returns` (
     CONSTRAINT `fk_returns_library` FOREIGN KEY (`return_library_id`) REFERENCES `libraries` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ------------------------------------------------------------
+-- 8. Table: payments
+-- Records refundable security deposit payments and refund processing details.
+-- ------------------------------------------------------------
+CREATE TABLE `payments` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `transaction_id` VARCHAR(50) NOT NULL UNIQUE,
+    `rental_id` INT NOT NULL UNIQUE,
+    `book_value` DECIMAL(10, 2) NOT NULL DEFAULT 500.00,
+    `rental_fee` DECIMAL(10, 2) NOT NULL DEFAULT 50.00,
+    `security_deposit` DECIMAL(10, 2) NOT NULL DEFAULT 500.00,
+    `amount_paid` DECIMAL(10, 2) NOT NULL DEFAULT 500.00,
+    `payment_status` ENUM('PENDING', 'PAID', 'CANCELLED', 'FAILED') NOT NULL DEFAULT 'PAID',
+    `payment_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `refund_amount` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    `late_fee` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    `damage_fee` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    `total_deduction` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    `refund_status` ENUM('PENDING', 'REFUNDED', 'PARTIALLY_DEDUCTED', 'NO_REFUND') NOT NULL DEFAULT 'PENDING',
+    `refund_date` DATETIME NULL,
+    CONSTRAINT `fk_payments_rental` FOREIGN KEY (`rental_id`) REFERENCES `rentals` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- ============================================================
 -- Sample Data Ingestion
 -- ============================================================
 
--- 1. Test Users (Passenger & Admin)
-INSERT INTO `users` (`name`, `email`, `password`, `mobile`, `role`) VALUES
-('Alex Passenger', 'alex.passenger@example.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', '+15550192834', 'user'),
-('Admin User', 'admin@travellib.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', '+15550009999', 'admin');
+-- 1. Test Users (Passenger, Admin, and Librarians)
+INSERT INTO `users` (`name`, `email`, `password`, `mobile`, `role`, `library_id`) VALUES
+('Alex Passenger', 'alex.passenger@example.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', '+15550192834', 'user', NULL),
+('Admin User', 'admin@travellib.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', '+15550009999', 'admin', NULL),
+('Librarian Chandrapur', 'librarian.chandrapur@travellib.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', '+15550192835', 'librarian', 1),
+('Librarian Nagpur', 'librarian.nagpur@travellib.com', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', '+15550192836', 'librarian', 2);
 
 -- 2. Sample Libraries (Indian Railway & Airport Hubs + International Terminals)
 INSERT INTO `libraries` (`id`, `name`, `city`, `location`, `type`) VALUES
@@ -141,14 +171,14 @@ INSERT INTO `libraries` (`id`, `name`, `city`, `location`, `type`) VALUES
 (6, 'Heathrow Airport Terminal 5 Library', 'London', 'Departure Lounge, Terminal 5, Heathrow Airport (LHR)', 'airport');
 
 -- 3. Sample Books (Popular travel & fiction titles)
-INSERT INTO `books` (`id`, `title`, `author`, `category`, `isbn`) VALUES
-(1, 'The Alchemist', 'Paulo Coelho', 'Fiction', '9780062315007'),
-(2, 'Wings of Fire', 'A.P.J. Abdul Kalam', 'Biography', '9788173711466'),
-(3, 'Atomic Habits', 'James Clear', 'Self-Help', '9780735211292'),
-(4, 'The Guide', 'R.K. Narayan', 'Classic', '9780143039648'),
-(5, 'Ikigai: The Japanese Secret to a Long and Happy Life', 'Héctor García', 'Non-Fiction', '9780143130727'),
-(6, 'The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction', '9780743273565'),
-(7, '1984', 'George Orwell', 'Dystopian', '9780451524935');
+INSERT INTO `books` (`id`, `title`, `author`, `category`, `isbn`, `book_value`, `rental_fee`) VALUES
+(1, 'The Alchemist', 'Paulo Coelho', 'Fiction', '9780062315007', 500.00, 50.00),
+(2, 'Wings of Fire', 'A.P.J. Abdul Kalam', 'Biography', '9788173711466', 450.00, 45.00),
+(3, 'Atomic Habits', 'James Clear', 'Self-Help', '9780735211292', 600.00, 60.00),
+(4, 'The Guide', 'R.K. Narayan', 'Classic', '9780143039648', 400.00, 40.00),
+(5, 'Ikigai: The Japanese Secret to a Long and Happy Life', 'Héctor García', 'Non-Fiction', '9780143130727', 550.00, 55.00),
+(6, 'The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction', '9780743273565', 480.00, 48.00),
+(7, '1984', 'George Orwell', 'Dystopian', '9780451524935', 520.00, 52.00);
 
 -- 4. Library Book Availability Stock
 INSERT INTO `library_books` (`library_id`, `book_id`, `quantity`, `available_quantity`) VALUES

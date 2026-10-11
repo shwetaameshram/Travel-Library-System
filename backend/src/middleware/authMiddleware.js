@@ -3,25 +3,28 @@ const { pool } = require('../config/db');
 // Middleware to authorize admin access
 exports.requireAdmin = async (req, res, next) => {
   try {
-    // 1. Check custom header x-user-role
     const roleHeader = req.headers['x-user-role'];
     const userIdHeader = req.headers['x-user-id'];
 
-    if (roleHeader === 'admin') {
-      return next();
-    }
+    let userId = userIdHeader || req.body?.user_id || req.body?.userId || req.query?.user_id || req.query?.userId;
 
-    // 2. If user ID header is provided, look up role in database
-    if (userIdHeader) {
-      const [users] = await pool.query('SELECT role FROM users WHERE id = ?', [userIdHeader]);
-      if (users.length > 0 && users[0].role === 'admin') {
+    // If a specific user ID is provided, look up in database
+    if (userId) {
+      const [users] = await pool.query('SELECT id, name, email, role, status FROM users WHERE id = ?', [userId]);
+      if (users.length > 0 && users[0].role === 'admin' && users[0].status !== 'inactive') {
+        req.user = users[0];
         return next();
+      } else {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Administrator privileges required.'
+        });
       }
     }
 
-    // 3. Fallback check from query or body user object
-    const roleInBody = req.body?.user?.role || req.body?.role || req.query?.role;
-    if (roleInBody === 'admin') {
+    // If role header specifies admin and no user ID failed DB check
+    if (roleHeader === 'admin') {
+      req.user = { role: 'admin' };
       return next();
     }
 

@@ -95,42 +95,55 @@ export default function AdminRentalsPage() {
           <table className="w-full text-left text-sm text-slate-300">
             <thead className="bg-slate-950 text-slate-400 text-xs font-semibold uppercase tracking-wider">
               <tr>
-                <th className="p-4">Rental Code</th>
+                <th className="p-4">Transaction / Code</th>
                 <th className="p-4">Passenger</th>
                 <th className="p-4">Book Title</th>
-                <th className="p-4">Source Pickup</th>
-                <th className="p-4">Destination Return</th>
-                <th className="p-4">Rental Date</th>
-                <th className="p-4">Due Date</th>
-                <th className="p-4">Status</th>
+                <th className="p-4">Route</th>
+                <th className="p-4">Deposit Paid</th>
+                <th className="p-4">Rental Fee</th>
+                <th className="p-4">Refunded</th>
+                <th className="p-4">Rental Status</th>
+                <th className="p-4">Refund Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60">
               {rentals.map((r) => (
                 <tr key={r.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="p-4 font-mono font-bold text-amber-400">{r.rental_code}</td>
+                  <td className="p-4 font-mono text-xs">
+                    <div className="font-bold text-amber-400">{r.rental_code}</div>
+                    <div className="text-slate-500 text-[11px]">{r.transaction_id || `TXN-TL-${r.id}`}</div>
+                  </td>
                   <td className="p-4">
                     <div className="font-bold text-white">{r.passenger_name}</div>
                     <div className="text-xs text-slate-500">{r.passenger_email}</div>
                   </td>
                   <td className="p-4 font-medium text-slate-200">{r.book_title}</td>
-                  <td className="p-4 text-xs text-slate-400">{r.source_library_name}</td>
-                  <td className="p-4 text-xs text-slate-400">{r.destination_library_name}</td>
-                  <td className="p-4 text-xs text-slate-400 font-mono">
-                    {new Date(r.rental_date).toLocaleDateString()}
+                  <td className="p-4 text-xs text-slate-400">
+                    {r.source_library_name} &rarr; {r.destination_library_name}
                   </td>
-                  <td className="p-4 text-xs font-mono text-amber-400 font-semibold">
-                    {new Date(r.due_date).toLocaleDateString()}
+                  <td className="p-4 font-mono font-bold text-emerald-400 text-xs">
+                    ₹{r.security_deposit || r.amount_paid || 500}
+                  </td>
+                  <td className="p-4 font-mono text-slate-300 text-xs">
+                    ₹{r.rental_fee || 50}
+                  </td>
+                  <td className="p-4 font-mono text-emerald-400 text-xs font-bold">
+                    {r.status === 'returned' ? `₹${r.refund_amount}` : '-'}
                   </td>
                   <td className="p-4">
                     <span
-                      className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase border ${
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase border ${
                         r.status === 'rented'
                           ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
                           : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                       }`}
                     >
                       {r.status}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                      {r.refund_status || (r.status === 'returned' ? 'REFUNDED' : 'PENDING')}
                     </span>
                   </td>
                 </tr>

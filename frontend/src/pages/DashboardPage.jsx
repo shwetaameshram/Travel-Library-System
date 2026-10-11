@@ -3,6 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, RotateCcw, BookOpen, Calendar, ArrowRight, ShieldAlert, CheckCircle2, User, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { rentalAPI } from '../services/api';
+import GlassCard from '../components/ui/GlassCard';
+import Mascot from '../components/ui/Mascot';
+import SectionHeading from '../components/ui/SectionHeading';
+import StatCard from '../components/ui/StatCard';
+import StatusBadge from '../components/ui/StatusBadge';
+import PrimaryButton from '../components/ui/PrimaryButton';
 
 export default function DashboardPage() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -37,9 +43,12 @@ export default function DashboardPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="flex items-center justify-center py-20 text-slate-400 gap-3">
-        <RefreshCw className="h-6 w-6 animate-spin text-indigo-500" />
-        <span>Loading Passenger Dashboard...</span>
+      <div className="flex flex-col items-center justify-center py-20 text-slate-600 space-y-4 font-medium">
+        <Mascot type="main" size="md" float speech="Fetching Your Rentals..." />
+        <div className="flex items-center gap-2 text-sm font-bold text-purple-800">
+          <RefreshCw className="h-5 w-5 animate-spin text-purple-600" />
+          <span>Loading Passenger Dashboard...</span>
+        </div>
       </div>
     );
   }
@@ -48,108 +57,124 @@ export default function DashboardPage() {
   const returnedRentals = rentals.filter((r) => r.status === 'returned');
   const totalRentals = rentals.length;
 
-  const statCards = [
-    { title: 'Active Rentals', count: activeRentals.length, icon: ShoppingBag, color: 'from-amber-500/20 to-yellow-500/10 text-amber-400 border-amber-500/20' },
-    { title: 'Returned Books', count: returnedRentals.length, icon: RotateCcw, color: 'from-emerald-500/20 to-teal-500/10 text-emerald-400 border-emerald-500/20' },
-    { title: 'Total Rentals', count: totalRentals, icon: BookOpen, color: 'from-indigo-500/20 to-purple-500/10 text-indigo-400 border-indigo-500/20' },
-  ];
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      {/* Welcome Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl">
-        <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-            Welcome back, <span className="text-indigo-400">{user?.name}</span>!
-          </h1>
-          <p className="text-sm text-slate-400">Track active travel book rentals and view your return history.</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+      {/* Welcome Glass Banner */}
+      <GlassCard className="p-8 md:p-10 border-white/80 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-800 text-white shadow-xl">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <span className="px-3.5 py-1 rounded-full bg-white/20 text-xs font-extrabold uppercase tracking-wider text-white">
+              Passenger Portal
+            </span>
+            <h1 className="text-3xl md:text-4xl font-black tracking-tight">
+              Welcome back, {user?.name}!
+            </h1>
+            <p className="text-purple-100 text-sm font-medium max-w-xl">
+              Track active travel book rentals and view your digital return receipt history.
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link to="/books">
+              <PrimaryButton variant="secondary" className="bg-white text-purple-900 hover:bg-purple-50">
+                <BookOpen className="w-4 h-4 text-purple-700" />
+                <span>Rent Another Book</span>
+              </PrimaryButton>
+            </Link>
+            <Mascot type="main" size="sm" float className="hidden sm:inline-flex" />
+          </div>
         </div>
-        <Link
-          to="/books"
-          className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2"
-        >
-          <BookOpen className="h-4 w-4" /> Rent Another Book
-        </Link>
-      </div>
+      </GlassCard>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {statCards.map((card, idx) => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={idx}
-              className={`bg-gradient-to-br ${card.color} p-6 rounded-3xl border backdrop-blur-md flex items-center justify-between shadow-xl`}
-            >
-              <div>
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-300">{card.title}</div>
-                <div className="text-4xl font-black text-white mt-2">{card.count}</div>
-              </div>
-              <div className="h-12 w-12 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-center">
-                <Icon className="h-6 w-6" />
-              </div>
-            </div>
-          );
-        })}
+        <StatCard
+          icon={ShoppingBag}
+          value={activeRentals.length}
+          label="Active Travel Rentals"
+          subtext="Books currently in transit"
+          gradient="from-amber-500 to-orange-600"
+        />
+        <StatCard
+          icon={RotateCcw}
+          value={returnedRentals.length}
+          label="Returned Books"
+          subtext="Completed trips & deposits refunded"
+          gradient="from-emerald-500 to-teal-600"
+        />
+        <StatCard
+          icon={BookOpen}
+          value={totalRentals}
+          label="Total Travel Rentals"
+          subtext="Lifetime rentals on TravelLib"
+          gradient="from-purple-500 to-indigo-600"
+        />
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm flex items-center gap-3">
-          <ShieldAlert className="h-5 w-5 text-rose-400 shrink-0" />
-          <span>{error}</span>
-        </div>
+        <GlassCard className="p-4 bg-rose-50/90 border-rose-200 text-rose-800 text-sm flex items-center gap-3">
+          <ShieldAlert className="h-5 w-5 text-rose-600 shrink-0" />
+          <span className="font-extrabold">{error}</span>
+        </GlassCard>
       )}
 
       {/* Active Rentals Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+      <GlassCard className="p-8 space-y-6 border-white/80">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-amber-400" /> Active Travel Rentals ({activeRentals.length})
+          <h2 className="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+            <ShoppingBag className="h-6 w-6 text-amber-600" /> Active Travel Rentals ({activeRentals.length})
           </h2>
         </div>
 
         {activeRentals.length === 0 ? (
-          <div className="text-center py-8 text-slate-500 space-y-2">
-            <p className="text-sm">You currently have no active book rentals.</p>
-            <Link to="/books" className="inline-block text-xs font-bold text-indigo-400 hover:text-indigo-300">
-              Browse books to start reading on your trip &rarr;
-            </Link>
+          <div className="text-center py-12 space-y-4">
+            <Mascot type="empty" size="md" speech="No active rentals!" float />
+            <p className="text-sm font-medium text-slate-600">You currently have no active book rentals in transit.</p>
+            <div>
+              <Link to="/books">
+                <PrimaryButton variant="primary">
+                  Browse Books to Start Reading
+                </PrimaryButton>
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-950 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+            <table className="w-full text-left text-sm text-slate-800">
+              <thead className="bg-purple-50/80 text-purple-900 text-xs font-extrabold uppercase tracking-wider border-b border-purple-100">
                 <tr>
-                  <th className="p-3.5 rounded-l-xl">Rental Code</th>
-                  <th className="p-3.5">Book Title</th>
-                  <th className="p-3.5">Pickup Library</th>
-                  <th className="p-3.5">Destination Return</th>
-                  <th className="p-3.5">Due Date</th>
-                  <th className="p-3.5">Status</th>
-                  <th className="p-3.5 rounded-r-xl text-right">Action</th>
+                  <th className="p-4 rounded-l-2xl">Rental Code</th>
+                  <th className="p-4">Book Title</th>
+                  <th className="p-4">Pickup Library</th>
+                  <th className="p-4">Destination Return</th>
+                  <th className="p-4">Deposit Paid</th>
+                  <th className="p-4">Due Date</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4 rounded-r-2xl text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-purple-100/60 font-medium">
                 {activeRentals.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="p-3.5 font-mono font-bold text-amber-400">{r.rental_code}</td>
-                    <td className="p-3.5 font-bold text-white">{r.book_title}</td>
-                    <td className="p-3.5 text-slate-400 text-xs">{r.source_library_name}</td>
-                    <td className="p-3.5 text-slate-400 text-xs">{r.destination_library_name}</td>
-                    <td className="p-3.5 font-mono text-amber-400 text-xs">
-                      {new Date(r.due_date).toLocaleDateString()}
+                  <tr key={r.id} className="hover:bg-purple-50/40 transition-colors">
+                    <td className="p-4 font-mono font-extrabold text-purple-700">{r.rental_code}</td>
+                    <td className="p-4 font-extrabold text-slate-900">{r.book_title}</td>
+                    <td className="p-4 text-slate-600 text-xs">{r.source_library_name}</td>
+                    <td className="p-4 text-slate-600 text-xs">{r.destination_library_name}</td>
+                    <td className="p-4 font-mono text-emerald-700 text-xs font-extrabold">
+                      ₹{r.security_deposit || r.amount_paid || 500}
                     </td>
-                    <td className="p-3.5">
-                      <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                        RENTED
-                      </span>
+                    <td className="p-4 font-mono text-amber-700 text-xs font-extrabold">
+                      {new Date(r.due_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
-                    <td className="p-3.5 text-right">
+                    <td className="p-4">
+                      <StatusBadge status="rented" />
+                    </td>
+                    <td className="p-4 text-right">
                       <Link
                         to={`/rentals/${r.id}`}
-                        className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-all inline-flex items-center gap-1"
+                        className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-extrabold transition-all inline-flex items-center gap-1.5 shadow-sm hover:scale-105"
                       >
-                        View Receipt <ArrowRight className="h-3 w-3" />
+                        <span>View Receipt</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
                       </Link>
                     </td>
                   </tr>
@@ -158,45 +183,46 @@ export default function DashboardPage() {
             </table>
           </div>
         )}
-      </div>
+      </GlassCard>
 
       {/* Historical Rentals Table */}
       {returnedRentals.length > 0 && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <RotateCcw className="h-5 w-5 text-emerald-400" /> Returned Books History ({returnedRentals.length})
+        <GlassCard className="p-8 space-y-6 border-white/80">
+          <h2 className="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+            <RotateCcw className="h-6 w-6 text-emerald-600" /> Returned Books History ({returnedRentals.length})
           </h2>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-950 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+            <table className="w-full text-left text-sm text-slate-800">
+              <thead className="bg-purple-50/80 text-purple-900 text-xs font-extrabold uppercase tracking-wider border-b border-purple-100">
                 <tr>
-                  <th className="p-3.5 rounded-l-xl">Rental Code</th>
-                  <th className="p-3.5">Book Title</th>
-                  <th className="p-3.5">Pickup</th>
-                  <th className="p-3.5">Returned At</th>
-                  <th className="p-3.5">Status</th>
-                  <th className="p-3.5 rounded-r-xl text-right">Receipt</th>
+                  <th className="p-4 rounded-l-2xl">Rental Code</th>
+                  <th className="p-4">Book Title</th>
+                  <th className="p-4">Pickup Location</th>
+                  <th className="p-4">Refund Amount</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4 rounded-r-2xl text-right">Receipt</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-purple-100/60 font-medium">
                 {returnedRentals.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="p-3.5 font-mono text-slate-400">{r.rental_code}</td>
-                    <td className="p-3.5 font-medium text-slate-200">{r.book_title}</td>
-                    <td className="p-3.5 text-slate-400 text-xs">{r.source_library_name}</td>
-                    <td className="p-3.5 text-slate-400 text-xs">{r.destination_library_name}</td>
-                    <td className="p-3.5">
-                      <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        RETURNED
-                      </span>
+                  <tr key={r.id} className="hover:bg-purple-50/40 transition-colors">
+                    <td className="p-4 font-mono text-slate-600 font-bold">{r.rental_code}</td>
+                    <td className="p-4 font-extrabold text-slate-900">{r.book_title}</td>
+                    <td className="p-4 text-slate-600 text-xs">{r.source_library_name}</td>
+                    <td className="p-4 font-mono text-emerald-700 text-xs font-extrabold">
+                      ₹{r.refund_amount !== undefined ? r.refund_amount : 450}
                     </td>
-                    <td className="p-3.5 text-right">
+                    <td className="p-4">
+                      <StatusBadge status="returned" />
+                    </td>
+                    <td className="p-4 text-right">
                       <Link
                         to={`/rentals/${r.id}`}
-                        className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold"
+                        className="text-xs text-purple-700 hover:text-purple-900 font-extrabold inline-flex items-center gap-1"
                       >
-                        View Details &rarr;
+                        <span>View Details</span>
+                        <ArrowRight className="h-3 w-3" />
                       </Link>
                     </td>
                   </tr>
@@ -204,7 +230,7 @@ export default function DashboardPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </GlassCard>
       )}
     </div>
   );

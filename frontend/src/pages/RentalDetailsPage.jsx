@@ -12,9 +12,16 @@ import {
   Compass, 
   Navigation,
   Sparkles,
-  QrCode
+  QrCode,
+  RefreshCw
 } from 'lucide-react';
 import { rentalAPI, returnAPI, libraryAPI } from '../services/api';
+import GlassCard from '../components/ui/GlassCard';
+import Mascot from '../components/ui/Mascot';
+import SectionHeading from '../components/ui/SectionHeading';
+import JourneyPath from '../components/ui/JourneyPath';
+import StatusBadge from '../components/ui/StatusBadge';
+import PrimaryButton from '../components/ui/PrimaryButton';
 
 export default function RentalDetailsPage() {
   const { id } = useParams();
@@ -91,22 +98,29 @@ export default function RentalDetailsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20 text-slate-400 gap-3">
-        <div className="h-6 w-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-        <span>Loading Rental Receipt...</span>
+      <div className="flex flex-col items-center justify-center py-20 text-slate-600 space-y-4 font-medium">
+        <Mascot type="main" size="md" float speech="Loading Receipt..." />
+        <div className="flex items-center gap-2 text-sm font-bold text-purple-800">
+          <RefreshCw className="h-5 w-5 animate-spin text-purple-600" />
+          <span>Loading Rental Receipt...</span>
+        </div>
       </div>
     );
   }
 
   if (error || !rental) {
     return (
-      <div className="max-w-xl mx-auto my-12 p-8 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-4">
-        <ShieldAlert className="h-12 w-12 text-rose-400 mx-auto" />
-        <h2 className="text-xl font-bold text-white">Rental Receipt Not Found</h2>
-        <p className="text-slate-400 text-sm">{error || 'The requested rental code does not exist.'}</p>
-        <Link to="/dashboard" className="inline-block px-5 py-2.5 rounded-xl bg-slate-800 text-white text-xs font-semibold">
-          Return to My Dashboard
-        </Link>
+      <div className="max-w-xl mx-auto my-12">
+        <GlassCard className="p-8 text-center space-y-4 border-purple-200">
+          <ShieldAlert className="h-12 w-12 text-rose-600 mx-auto" />
+          <h2 className="text-2xl font-black text-slate-900">Rental Receipt Not Found</h2>
+          <p className="text-slate-600 text-sm font-medium">{error || 'The requested rental code does not exist.'}</p>
+          <Link to="/dashboard">
+            <PrimaryButton variant="primary">
+              Return to My Dashboard
+            </PrimaryButton>
+          </Link>
+        </GlassCard>
       </div>
     );
   }
@@ -116,147 +130,169 @@ export default function RentalDetailsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-mono font-bold mb-2">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-200 text-xs font-mono font-extrabold mb-2">
             Rental Code: {rental.rental_code}
           </div>
-          <h1 className="text-3xl font-black text-white">Travel Rental Receipt</h1>
+          <h1 className="text-3xl font-black text-slate-900">Travel Rental Receipt</h1>
         </div>
 
         <div className="flex items-center gap-3">
-          <span
-            className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${
-              rental.status === 'rented'
-                ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-            }`}
-          >
-            Status: {rental.status}
-          </span>
+          <StatusBadge status={rental.status} />
           {rental.status === 'rented' && (
-            <button
+            <PrimaryButton
+              variant="primary"
               onClick={() => setShowReturnModal(true)}
-              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-2 cursor-pointer"
+              className="bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20 text-xs"
             >
-              <RotateCcw className="h-4 w-4" /> Process Return Dropoff
-            </button>
+              <RotateCcw className="h-4 w-4" />
+              <span>Process Return Dropoff</span>
+            </PrimaryButton>
           )}
         </div>
       </div>
 
       {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm flex items-center gap-3">
-          <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
-          <span>{successMsg}</span>
-        </div>
+        <GlassCard className="p-4 bg-emerald-50/90 border-emerald-200 text-emerald-900 text-sm flex items-center gap-3">
+          <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+          <span className="font-extrabold">{successMsg}</span>
+        </GlassCard>
       )}
 
-      {/* Explicit Journey Visualization Flow */}
-      <div className="bg-gradient-to-br from-slate-900 to-indigo-950/40 border border-indigo-500/30 rounded-3xl p-8 shadow-2xl space-y-6">
-        <div className="text-center space-y-1">
-          <span className="text-xs font-bold uppercase tracking-widest text-indigo-400 flex items-center justify-center gap-1.5">
-            <Compass className="h-4 w-4" /> Active Passenger Route Flow
-          </span>
-          <h2 className="text-xl font-extrabold text-white">Travel Journey Map</h2>
-        </div>
+      {/* Explicit Journey Path Flow */}
+      <GlassCard className="p-8 space-y-6 border-white/80">
+        <SectionHeading
+          badge="Passenger Route"
+          title="Travel Journey Route"
+          subtitle="Borrow at origin station, read during travel, return at destination."
+          align="left"
+        />
+        <JourneyPath source={rental.source_library_name} destination={rental.destination_library_name} />
+      </GlassCard>
 
-        {/* Visual Diagram */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 py-4">
-          {/* Pickup Step */}
-          <div className="flex-1 w-full p-5 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-2 relative">
-            <div className="h-10 w-10 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center mx-auto">
-              <MapPin className="h-5 w-5" />
-            </div>
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Source Pickup</div>
-            <div className="font-extrabold text-white text-base">{rental.source_library_name}</div>
-            <div className="text-xs text-indigo-300 font-semibold">{rental.source_library_city}</div>
+      {/* Full Digital Receipt Details */}
+      <GlassCard className="p-8 space-y-8 border-white/80 shadow-lg">
+        <div className="flex items-center justify-between border-b border-purple-100 pb-4">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-purple-600" />
+            <h3 className="text-lg font-extrabold text-slate-900">Book & Passenger Summary</h3>
           </div>
-
-          {/* Travel Transition Arrow */}
-          <div className="flex flex-col items-center justify-center space-y-1 text-slate-500 py-2">
-            <div className="text-[11px] font-bold uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20 flex items-center gap-1">
-              <Navigation className="h-3 w-3 animate-pulse" /> Travel / Transit
-            </div>
-            <ArrowRight className="h-6 w-6 text-indigo-400 hidden md:block" />
-            <div className="text-xs font-mono text-slate-400">Due: {new Date(rental.due_date).toLocaleDateString()}</div>
-          </div>
-
-          {/* Dropoff Step */}
-          <div className="flex-1 w-full p-5 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-2 relative">
-            <div className="h-10 w-10 rounded-xl bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
-              <MapPin className="h-5 w-5" />
-            </div>
-            <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Destination Dropoff</div>
-            <div className="font-extrabold text-white text-base">{rental.destination_library_name}</div>
-            <div className="text-xs text-emerald-300 font-semibold">{rental.destination_library_city}</div>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 text-xs font-mono font-bold">
+            <QrCode className="h-4 w-4" /> Digital Verification
           </div>
         </div>
-      </div>
 
-      {/* Full Receipt Grid */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl">
-        <h3 className="text-lg font-bold text-white border-b border-slate-800 pb-3 flex items-center justify-between">
-          <span>Borrower & Item Details</span>
-          <QrCode className="h-5 w-5 text-slate-500" />
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm font-medium">
           <div className="space-y-4">
             <div>
-              <span className="text-xs text-slate-400 uppercase font-semibold block">Book Title</span>
-              <span className="font-extrabold text-white text-base flex items-center gap-2 mt-0.5">
-                <BookOpen className="h-4 w-4 text-indigo-400" /> {rental.book_title}
+              <span className="text-xs text-slate-500 uppercase font-extrabold block">Book Title</span>
+              <span className="font-extrabold text-slate-900 text-lg flex items-center gap-2 mt-0.5">
+                {rental.book_title}
               </span>
-              <span className="text-xs text-slate-400 font-mono">Author: {rental.author} | ISBN: {rental.isbn}</span>
+              <span className="text-xs text-purple-700 font-bold font-mono">Author: {rental.book_author || rental.author}</span>
             </div>
 
             <div>
-              <span className="text-xs text-slate-400 uppercase font-semibold block">Passenger Name</span>
-              <span className="font-bold text-slate-200 mt-0.5 block">{rental.passenger_name}</span>
-              <span className="text-xs text-slate-400 font-mono">{rental.passenger_email}</span>
+              <span className="text-xs text-slate-500 uppercase font-extrabold block">Passenger Name</span>
+              <span className="font-extrabold text-slate-900 mt-0.5 block">{rental.user_name || rental.passenger_name}</span>
+              <span className="text-xs text-slate-500 font-mono">{rental.user_email || rental.passenger_email}</span>
             </div>
           </div>
 
-          <div className="space-y-4 border-t md:border-t-0 md:border-l border-slate-800 md:pl-6 pt-4 md:pt-0">
+          <div className="space-y-4 border-t md:border-t-0 md:border-l border-purple-100 md:pl-8 pt-4 md:pt-0">
             <div>
-              <span className="text-xs text-slate-400 uppercase font-semibold block">Rental Date</span>
-              <span className="font-semibold text-slate-200 mt-0.5 block font-mono">
+              <span className="text-xs text-slate-500 uppercase font-extrabold block">Rental Date</span>
+              <span className="font-extrabold text-slate-900 mt-0.5 block font-mono">
                 {new Date(rental.rental_date).toLocaleString()}
               </span>
             </div>
 
             <div>
-              <span className="text-xs text-slate-400 uppercase font-semibold block">Return Due Date</span>
-              <span className="font-extrabold text-amber-400 mt-0.5 block font-mono text-base">
-                {new Date(rental.due_date).toLocaleDateString()}
+              <span className="text-xs text-slate-500 uppercase font-extrabold block">Return Due Date</span>
+              <span className="font-black text-amber-700 mt-0.5 block font-mono text-lg">
+                {new Date(rental.due_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
               </span>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Return Check-in Modal */}
+        {/* Deposit & Financial Summary Card */}
+        <div className="border-t border-purple-100 pt-6 space-y-4">
+          <h4 className="text-xs font-extrabold text-purple-800 uppercase tracking-wider">
+            Deposit & Financial Breakdown
+          </h4>
+          <div className="glass-panel p-6 rounded-2xl border-purple-200 font-mono text-xs space-y-3 bg-gradient-to-br from-purple-50/50 to-indigo-50/50">
+            <div className="flex justify-between border-b border-purple-100 pb-2">
+              <span className="text-slate-600 font-semibold">Transaction ID:</span>
+              <span className="font-extrabold text-purple-800">{rental.transaction_id || `TXN-TL-${rental.id}`}</span>
+            </div>
+            <div className="flex justify-between border-b border-purple-100 pb-2">
+              <span className="text-slate-600 font-semibold">Book Value:</span>
+              <span className="text-slate-900 font-bold">₹{rental.book_value}</span>
+            </div>
+            <div className="flex justify-between border-b border-purple-100 pb-2">
+              <span className="text-slate-600 font-semibold">Rental Fee:</span>
+              <span className="text-slate-900 font-bold">₹{rental.rental_fee}</span>
+            </div>
+            <div className="flex justify-between border-b border-purple-100 pb-2">
+              <span className="text-slate-600 font-semibold">Security Deposit (Paid):</span>
+              <span className="text-emerald-700 font-extrabold">₹{rental.security_deposit || rental.amount_paid}</span>
+            </div>
+            <div className="flex justify-between border-b border-purple-100 pb-2">
+              <span className="text-slate-600 font-semibold">Payment Status:</span>
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-extrabold uppercase">
+                {rental.payment_status || 'PAID'}
+              </span>
+            </div>
+
+            {rental.status === 'returned' && (
+              <>
+                <div className="flex justify-between border-b border-purple-100 pb-2">
+                  <span className="text-slate-600 font-semibold">Late Fee Deduction:</span>
+                  <span className="text-rose-700 font-bold">₹{rental.late_fee || 0}</span>
+                </div>
+                <div className="flex justify-between border-b border-purple-100 pb-2">
+                  <span className="text-slate-600 font-semibold">Damage Deduction:</span>
+                  <span className="text-rose-700 font-bold">₹{rental.damage_fee || 0}</span>
+                </div>
+                <div className="flex justify-between border-b border-purple-100 pb-2">
+                  <span className="text-slate-600 font-semibold">Refund Amount:</span>
+                  <span className="text-emerald-700 font-black text-sm">₹{rental.refund_amount}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600 font-semibold">Refund Status:</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 font-extrabold uppercase">
+                    {rental.refund_status || 'REFUNDED'}
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </GlassCard>
+
+      {/* Return Dropoff Modal */}
       {showReturnModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-lg space-y-6 shadow-2xl relative">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <RotateCcw className="h-5 w-5 text-emerald-400" /> Process Return Dropoff
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4">
+          <GlassCard className="w-full max-w-lg space-y-6 shadow-2xl border-white/90 bg-white/95">
+            <div className="flex items-center justify-between border-b border-purple-100 pb-4">
+              <h3 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                <RotateCcw className="h-5 w-5 text-emerald-600" /> Process Return Dropoff
               </h3>
-              <button onClick={() => setShowReturnModal(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setShowReturnModal(false)} className="text-slate-400 hover:text-slate-700 font-extrabold text-lg">
                 ✕
               </button>
             </div>
 
             <form onSubmit={handleReturnSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
                   Select Return Dropoff Library
                 </label>
                 <select
                   required
                   value={returnLibraryId}
                   onChange={(e) => setReturnLibraryId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-emerald-500"
+                  className="w-full px-4 py-3 rounded-2xl bg-white border border-purple-200 text-slate-900 text-sm font-medium focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
                 >
                   {libraries.map((l) => (
                     <option key={l.id} value={l.id}>
@@ -267,13 +303,13 @@ export default function RentalDetailsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
                   Returned Book Condition
                 </label>
                 <select
                   value={condition}
                   onChange={(e) => setCondition(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-emerald-500"
+                  className="w-full px-4 py-3 rounded-2xl bg-white border border-purple-200 text-slate-900 text-sm font-medium focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
                 >
                   <option value="good">Good Condition</option>
                   <option value="damaged">Slightly Damaged</option>
@@ -282,7 +318,7 @@ export default function RentalDetailsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
                   Check-in Remarks (Optional)
                 </label>
                 <textarea
@@ -290,28 +326,28 @@ export default function RentalDetailsPage() {
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   placeholder="e.g. Returned on time at Station Platform 1 desk..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-emerald-500"
+                  className="w-full px-4 py-3 rounded-2xl bg-white border border-purple-200 text-slate-900 text-sm font-medium focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
                 />
               </div>
 
-              <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                <button
+              <div className="flex items-center gap-3 pt-4 border-t border-purple-100">
+                <PrimaryButton
                   type="submit"
                   disabled={submittingReturn}
-                  className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-md shadow-emerald-600/20"
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20"
                 >
                   {submittingReturn ? 'Processing Check-in...' : 'Confirm Return Dropoff'}
-                </button>
-                <button
+                </PrimaryButton>
+                <PrimaryButton
                   type="button"
+                  variant="secondary"
                   onClick={() => setShowReturnModal(false)}
-                  className="px-5 py-3 rounded-xl bg-slate-800 text-slate-300 text-sm font-semibold"
                 >
                   Cancel
-                </button>
+                </PrimaryButton>
               </div>
             </form>
-          </div>
+          </GlassCard>
         </div>
       )}
     </div>

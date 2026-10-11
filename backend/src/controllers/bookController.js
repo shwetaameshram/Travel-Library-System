@@ -13,6 +13,8 @@ exports.getAllBooks = async (req, res, next) => {
         b.author,
         b.category,
         b.isbn,
+        b.book_value,
+        b.rental_fee,
         b.created_at,
         COALESCE(SUM(lb.quantity), 0) AS total_quantity,
         COALESCE(SUM(lb.available_quantity), 0) AS total_available_quantity

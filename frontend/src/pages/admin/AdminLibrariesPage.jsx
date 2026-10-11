@@ -141,10 +141,34 @@ export default function AdminLibrariesPage() {
               <h2 className="text-lg font-bold text-white leading-snug">{lib.name}</h2>
               <div className="text-xs font-semibold text-slate-400">City: <span className="text-slate-200">{lib.city}</span></div>
 
-              <p className="text-xs text-slate-400 flex items-start gap-1.5 pt-2">
+              <p className="text-xs text-slate-400 flex items-start gap-1.5 pt-1">
                 <MapPin className="h-4 w-4 text-purple-400 shrink-0 mt-0.5" />
                 <span>{lib.location}</span>
               </p>
+
+              {/* Librarian & Branch Metrics */}
+              <div className="pt-3 border-t border-slate-800/80 space-y-2 text-xs">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">Assigned Librarian:</span>
+                  <span className="font-semibold text-indigo-400">
+                    {lib.librarian_name || 'Unassigned'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 pt-1 text-center font-mono">
+                  <div className="bg-slate-950 p-2 rounded-xl border border-slate-800">
+                    <div className="text-[10px] text-slate-500 uppercase">Books</div>
+                    <div className="font-bold text-white">{lib.total_books || 0}</div>
+                  </div>
+                  <div className="bg-slate-950 p-2 rounded-xl border border-slate-800">
+                    <div className="text-[10px] text-slate-500 uppercase">Copies</div>
+                    <div className="font-bold text-emerald-400">{lib.available_copies || 0}</div>
+                  </div>
+                  <div className="bg-slate-950 p-2 rounded-xl border border-slate-800">
+                    <div className="text-[10px] text-slate-500 uppercase">Active</div>
+                    <div className="font-bold text-amber-400">{lib.active_rentals || 0}</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         ))}
